@@ -1,0 +1,50 @@
+// ion-content {
+//     height: 100vh;
+// }
+ion-content {
+    border: 9px solid red;
+}
+
+#slider {
+    background-color: white;
+    height: 100%;
+    max-width: 800px;
+}
+
+#slider ion-slide {
+    padding: 10px 20px;
+}
+
+#slider .swiper-slide {
+    // es una caja que contiene los ion-slide
+    display: block;
+    margin-bottom: 64px;
+    background-color: white;
+}
+
+#slider .x {
+    position: absolute;
+    right: 5%;
+}
+
+#slider h1,
+h2 {
+    font-weight: bold;
+    color: #165598;
+    // line-height: 15px;
+    margin-top: 0px !important;
+    margin-bottom: 20px;
+}
+
+#slider p {
+    font-style: oblique;
+}
+
+#slider ion-icon {
+    color: #165598;
+    font-size: 3em;
+}
+
+#slider img {
+    width: 150px;
+}
