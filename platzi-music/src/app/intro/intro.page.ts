@@ -41,7 +41,7 @@ export class IntroPage implements OnInit {
 
   constructor( private router: Router, private _storage: Storage) { }
   finish(){
-    this._storage.set('YaVioElIntro', true);
+    this._storage.set('YaVioElIntro', true); //inserta true al storage
     this.router.navigateByUrl('/home');
   }
 

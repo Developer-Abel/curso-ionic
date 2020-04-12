@@ -197,12 +197,66 @@ finish(){
 ```
 
 Hasta aqui al cerrar el slider, en el **storage local** nos guarda la variable que definimos en **true**, para verlo en modo consola nos vamos a *application/indexedDB/_ionicstorage/_ionickv*.
+![img storage](https://github.com/Developer-Abel/curso-ionic/blob/master/platzi-music/src/assets/img/pngstorage.PNG)
 
+## Guards 
+
+Se debe de controlar la navegación; al entrar a la app que aparesca el slider y si lo cierran que se rediriga al home (eso ya esta), pero ahora debemos de checar que solo una ves vea el usuario el slider (por que si no va hacer muy molesto) y esto se logra con el **guard** de angular.
 ```
+ionic generate guard guard/intro
 ```
+
+Se el guard se guarda en una carpeta **guard** y los archivos se llaman **intro**
+
+## configuración del Guards
+
+La idea es que en el archivo
+> app-routing.module.ts
+donde se encuentran las rutas **(** Routes **)**, debemos activar el **Guards**. Para eso primero tenemos que importarlo.
+```typescript
+import { IntroGuard } from './guards/intro.guard';
 ```
+
+El **intro.guard** es el archivo que se genero al crear el Guards.
+
+Ahora especificamos: *puedes acceder al **home** solo si el **Guard** es verdadero*
+```typescript
+{ path: 'home', loadChildren: () => import('./home/home.module').then( m => m.HomePageModule),
+  canActivate: [IntroGuard]
+},
 ```
+
+Como podemos ver **canActivate: [IntroGuard]** esta es la linea que agregamos, entonces en el archivo **intro.guard.ts** debemos de tener una clase que se llame **IntroGuard** y que retorne verdadero para poder acceder al home.
+
+**importante: si no regresa verdadero, hasta este punto solo no se mostraria nada en la app (se muestra una hoja en blanco), esa logica la programamos en el archivo *IntroGuard**.*
+
+En este otro archivo
+> intro.guard.ts
+Creamos una funcion en donde obtenemos el valor de la variable que guardamos en el **local storage** y verificamos, pero para eso tenemos que importar en **CanActivate**.
+```typescript
+import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, Router } from '@angular/router';
 ```
+
+Lo declaramos en el constructor
+```typescript
+constructor( private _storage: Storage, private _router: Router){}
 ```
+
+Por ultimo validamos **(** se debe de importar Route, esto ya lo habiamos visto antes **)**.
+```typescript
+async canActivate() {
+    const YaVioElIntro = await this._storage.get('YaVioElIntro');
+
+    if(YaVioElIntro) {
+        return true;
+    } else {
+        this._router.navigateByUrl('/intro');
+    }
+}
+```
+
+Si la variable que esta en el **local storage** es verdadero, retorna true (entonces pasa al home, porque de esta clase se esperaba un true para poder continuar) y si no redirigimos al intro.
+
+
 ```
 ```
