@@ -1,0 +1,7 @@
+{
+  "name": "platzi-music-tabs",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

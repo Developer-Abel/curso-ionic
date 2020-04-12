@@ -1,0 +1,7 @@
+{
+  "name": "platzi-music-blank",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
