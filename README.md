@@ -197,7 +197,7 @@ finish(){
 ```
 
 Hasta aqui al cerrar el slider, en el **storage local** nos guarda la variable que definimos en **true**, para verlo en modo consola nos vamos a *application/indexedDB/_ionicstorage/_ionickv*.
-![img storage](https://github.com/Developer-Abel/curso-ionic/blob/master/platzi-music/src/assets/img/pngstorage.PNG)
+![img storage](https://github.com/Developer-Abel/curso-ionic/blob/master/platzi-music/src/assets/img/storage.PNG)
 
 ## Guards 
 
