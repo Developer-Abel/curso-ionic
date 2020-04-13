@@ -212,6 +212,7 @@ Se el guard se guarda en una carpeta **guard** y los archivos se llaman **intro*
 
 La idea es que en el archivo
 > app-routing.module.ts
+
 donde se encuentran las rutas **(** Routes **)**, debemos activar el **Guards**. Para eso primero tenemos que importarlo.
 ```typescript
 import { IntroGuard } from './guards/intro.guard';
@@ -228,10 +229,11 @@ Ahora especificamos: *puedes acceder al **home** solo si el **Guard** es verdade
 
 Como podemos ver **canActivate: [IntroGuard]** esta es la linea que agregamos, entonces en el archivo **intro.guard.ts** debemos de tener una clase que se llame **IntroGuard** y que retorne verdadero para poder acceder al home.
 
-**importante: si no regresa verdadero, hasta este punto solo no se mostraria nada en la app (se muestra una hoja en blanco), esa logica la programamos en el archivo *IntroGuard**.*
+**importante: si no regresa verdadero, hasta este punto solo no se mostraria nada en la app (se muestra una hoja en blanco), esa logica la programamos en el archivo *IntroGuard*.**
 
 En este otro archivo
 > intro.guard.ts
+
 Creamos una funcion en donde obtenemos el valor de la variable que guardamos en el **local storage** y verificamos, pero para eso tenemos que importar en **CanActivate**.
 ```typescript
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, Router } from '@angular/router';
@@ -255,8 +257,201 @@ async canActivate() {
 }
 ```
 
-Si la variable que esta en el **local storage** es verdadero, retorna true (entonces pasa al home, porque de esta clase se esperaba un true para poder continuar) y si no redirigimos al intro.
+Si la variable que esta en el **local storage** es verdadero, retorna true (entonces pasa al home, porque de esta clase se esperaba un **true** para poder continuar) y si no redirigimos al intro.
 
+## Login
 
+Ionic crea una vista de un login por nosotros con el siguiente comando
+```
+ionic generate page login
+```
+
+y nos va a crear una carpeta **login** con los archivos necesarios. 
+
+**para utilizar las propiedades de ionic se tiene que especificar en el clase *class="ion-text-center"*.**
+
+## Creacion de formulario reactivo LOGIN
+
+Un formulario rectivo, especifica que tipo de input va a contener el formulario, y que tipo de datos va a contener ese input, y antes que todo se debe de importar **ReactiveFormsModule** para poder utilizar todas sus directivas y providers (**FormBuilder, EmailValidator,FormGroupName, etc**), esto en el archivo **login.modules.ts**
+```typescript
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+```
+
+tambien lo declaramos en los **imports.**
+```typescript
+@NgModule({
+  imports: [
+    ReactiveFormsModule, //importar
+  ]
+```
+
+tambien vamos a importar todo lo necesario para que esto se logre en nuestro **componente page**
+```typescript
+import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
+```
+
+Primero como se va a llamar nuestro formulario y de que tipo va hacer.
+```typescript
+export class LoginPage implements OnInit {
+  loginForm: FormGroup;
+}
+```
+El **FormGroup** va a encapsular todos los inputs y de esta forma podemos manipularlo creando validaciones etc.
+
+Para construir lo campos dinamicamente vamos a utilizar **FormBuilder** (ya esta importado) solo vamos a declararlo en el constructor.
+```typescript
+ constructor(private _formBuilder: FormBuilder ) { }
+```
+
+Mediante nuestra variable vamos a instanciar para utilizar el **FormBuider**, y comenzamos a validar.
+```typescript
+constructor(private _formBuilder: FormBuilder ) { 
+    this.loginForm = this._formBuilder.group({
+      Email: new FormControl("", Validators.compose([
+        Validators.required,
+        Validators.pattern('^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$')
+      ]))
+    });
+}
+```
+
+Ahora en nuestro **html** creamos el formulario, especificando el nombre **loginForm** y de una vez vamos a crear una funcion para que cuando pulse el boton continuar obtenga los valores del input. (**despues vamos a crear esta funcion**)
+```html
+<form [formGroup]="loginForm" (ngSubmit)="loginUser(loginForm.value)">
+        <ion-item>
+            <ion-label>Email: </ion-label>
+            <ion-input formControlName="Email"></ion-input>
+        </ion-item>
+    </form>
+```
+**importante el *formControlName* es el nombre que sele puso en el componente**
+
+lo mismo con el password
+```typescript
+password: new FormControl("", 
+    Validators.compose([
+        Validators.required,
+        Validators.minLength(5)
+    ])
+)
+```
+
+```html
+<ion-item>
+    <ion-label>Password: </ion-label>
+    <ion-input type="password" formControlName="password"></ion-input>
+</ion-item>
+```
+
+Ahora si por ejemplo escriben algo que no va de acuerdo con las validaciones debe de aparecer un mensaje de error, esto se logra de la siguiente manera.
+
+Se crea un array con los posibles errore y con sus respectuvos mensajes
+```typescript
+validation_messages = {
+    email:[
+      {type: "required", message: "El email es requerido"},
+      {type: "pattern", message: "ojo este no es un email valido"}
+    ],
+    password:[
+      {type: "required", message: "El password es requerido"},
+      {type: "minlength", message: "se requiere de minimo 5 letras"}
+    ]
+};
+```
+
+realizamos un **for** para recorrer el array antes mencionado, y un **if** si se cumple
+```html
+<div class="validation-error">
+    <ng-container *ngFor="let validation of validation_messages.email">
+        <div *ngIf="loginForm.get('email').hasError(validation.type) && (loginForm.get('email').dirty || loginForm.get('email').touched")>
+            {{validation.message}}
+        </div>
+    </ng-container>
+</div>
+```
+
+Esto es del email, lo mismo se hace con el password.
+
+## Boton registrar y login
+
+Creamos el boton registrar esto como **fotter** para que aparesca hasta el ultimo
+```html
+<ion-footer class="ion-text-center">
+    <ion-button expand="full" fill="outline" shape="round" color="danger">Click para registrar</ion-button>
+</ion-footer>
+```
+
+y el boton del login lo creamos justo antes que termine el **form** tiene que ser de tipo **submit** y creamos una condicion para que cuando los campos **email** y **password** se hayan rellenado correctamente se active el btn login.
+```html
+<ion-button expand="full" shape="round" color="danger" [disabled]="!loginForm.valid" type="submit">Login!
+        </ion-button>
+```
+
+Hasta ahorra si rellenamos los campos correctamente se activa el btn login, pero a la hora de enviar datos sale un error, esto por que aun no tenemos la funcion que esta buscando **loginUser**.
+```typescript
+loginUser(credentials){
+    console.log(credentials);
+  }
+```
+
+Si vemos en la consola, ya manda las credenciales.
+
+## Servicios
+
+**Servicios** la parte mas divertida de la programacion, vamos a generar un servicio simulando que ya tenemos tanto el **email y password**.
+
+Generamos el servicio dentro de la carpeta **service** y el servicio de va a llamar **authenticate**
+```
+ionic generate service services/authenticate
+```
+
+En el archivo **authenticate.service.ts** vamos a crear una funcion en donde vamos a retornar una **promesa** en cual nos va a indicar si los datos son correctos o incorrectos, esta funcion es justo despues del constructor
+```typescript
+loginUser(credential){
+    return new Promise((accept, reject)=> {
+    if(credential.email == 'abel@gmail.com' && credential.password == '001garcia'){
+    accept('login correcto');
+    } else {
+    reject('login incorrecto');
+    }
+});
+```
+
+**importante: si hacemos una conexion con el backed es asi:**
+```typescript
+return fetch("url_del_servidor");
+```
+
+Despues de crear el **servicio** vamos a importarlo en nuestro componente de login
+```typescript
+import { AuthenticateService } from '../services/authenticate.service';
+```
+
+Lo declaramos en el constructor
+```typescript
+constructor( private _authService: AuthenticateService) {}
+```
+
+ahora vamos a declarar 2 variables **errorMessage** esta para cachar los errores a la hora de recibir el servicio, y **_navController** que es el que se va a encargar de redirigir al **home**, este ultimo se tiene que importar y declararlo en el **contructor**.
+```typescript
+import { NavController } from '@ionic/angular';
+constructor(private  _navController: NavController) {}
+```
+
+Por ultimo en la funcion mandamos las credenciales al metodo **loginUser** que esta en el servicio y como respuesta, si es verdadera se redirige al  **home*
+```typescript
+loginUser(credentials){
+    this._authService.loginUser(credentials).then(res => {
+        this.errorMessage = '';
+        this._navController.navigateForward('/home');
+    });
+}
+```
+
+*Hasta el momento al logearse de forma erronea nos muestra una advertencia en consola que el login es incorrecto, y si el login es correcto, nos redirige al home*
+
+```
+```
+```
 ```
 ```
